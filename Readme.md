@@ -18,8 +18,8 @@ To install, user needs a smart hub and sensors for water exit points. The Smart 
 
 # Contributors
 
-Lilit Gevorkyan
-Fabian Kim
-Alissa Ovalle
-Muntaser Syed
-Chris Woodle
+* Lilit Gevorkyan
+* Fabian Kim
+* Alissa Ovalle
+* Muntaser Syed
+* Chris Woodle
