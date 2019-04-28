@@ -1,7 +1,11 @@
 <template>
     <div class="home">
-        <div class='row'>
-            <div class='card'>{{deviceValue}}</div>
+        <div class='row two'>
+            <div class='card device' v-if='device'>
+                <div class='label'>{{device.meta.$label || device.id}}</div>
+                <div class='field'>Flow Rate</div>
+                <div class='value'>{{100 * ((deviceValue) / 255).toFixed(3)}} % </div>
+            </div>
         </div>
         <div class='row two'>
             <div class='card'>
@@ -41,8 +45,11 @@ import { Component, Vue } from 'vue-property-decorator';
 import HelloWorld from '@/components/HelloWorld.vue'; // @ is an alias to /src
 
 import * as ws from '@droplit/websocket-sdk';
+import * as sdk from '@droplit/sdk';
 
-import { DSocket } from '../websocket';
+import { api } from '../websocket';
+
+const DEVICE_ID = 'D5cc539271baae3b9f2135676';
 
 @Component({
     components: {
@@ -50,13 +57,17 @@ import { DSocket } from '../websocket';
     },
 })
 export default class Home extends Vue {
+    device: sdk.Device | null = null;
     deviceValue = 0;
     data = [{
         name: "Some Data", chartType: 'bar',
         values: [25, 40, 30, 35, 8, 52, 17, -4]
     }]
     mounted() {
-        DSocket.on('main_device', (event: ws.ServiceNotification) => {
+        api.sdk.devices.info(DEVICE_ID).then(response => {
+            Vue.set(this, 'device', response.body);
+        })
+        api.on('main_device', (event: ws.ServiceNotification) => {
             console.log(event);
             const notification = event.items[0];
             if (notification && notification.service === 'FlowSensor' && notification.member === 'rate') {
@@ -67,3 +78,19 @@ export default class Home extends Vue {
     }
 }
 </script>
+
+<style lang="scss" scoped>
+.device {
+    .label {
+        font-size: 20px;
+        font-weight: bold;
+        margin-bottom: 10px;
+    }
+    .field {
+        font-size: 12px;
+    }
+    .value {
+        color: $primary-blue;
+    }
+}
+</style>

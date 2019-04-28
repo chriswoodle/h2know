@@ -14,7 +14,7 @@ import * as DroplitWS from '@droplit/websocket-sdk';
 import debug from 'debug';
 const log = debug('app:socket');
 
-class DroplitSocket extends EventEmitter {
+class API extends EventEmitter {
 
     sessionId: string = '';
     socket: DroplitWS.DroplitClient;
@@ -57,4 +57,4 @@ class DroplitSocket extends EventEmitter {
     }
 }
 
-export const DSocket = new DroplitSocket();
+export const api = new API();

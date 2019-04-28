@@ -10,9 +10,6 @@ Vue.use(Chart)
 import './styles/reset.scss';
 import './styles/main.scss';
 
-import { DSocket } from './websocket';
-console.log(DSocket);
-
 import router from './router'
 
 Vue.config.productionTip = false
