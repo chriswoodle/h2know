@@ -22,7 +22,7 @@
                     :dataSets="this.data">
                 </vue-frappe>
             </div>
-            <div class='card'>
+            <div class='card clickable'>
                 <vue-frappe
                     id="test2"
                     :labels="[
