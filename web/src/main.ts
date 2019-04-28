@@ -1,9 +1,17 @@
+localStorage.debug='app:*';
 import Vue from 'vue'
 import App from './App.vue'
+
+// @ts-ignore
+import Chart from 'vue2-frappe';
+
+Vue.use(Chart)
 
 import './styles/reset.scss';
 import './styles/main.scss';
 
+import { DSocket } from './websocket';
+console.log(DSocket);
 
 import router from './router'
 

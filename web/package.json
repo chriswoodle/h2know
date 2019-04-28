@@ -7,10 +7,16 @@
     "build": "vue-cli-service build"
   },
   "dependencies": {
+    "@droplit/sdk": "^0.3.1",
+    "@droplit/websocket-sdk": "^0.1.4",
+    "@types/debug": "^4.1.4",
+    "debug": "^4.1.1",
+    "frappe-charts": "^1.1.0",
     "vue": "^2.6.10",
     "vue-class-component": "^7.0.2",
     "vue-property-decorator": "^8.1.0",
-    "vue-router": "^3.0.3"
+    "vue-router": "^3.0.3",
+    "vue2-frappe": "^1.0.28"
   },
   "devDependencies": {
     "@vue/cli-plugin-typescript": "^3.6.0",
