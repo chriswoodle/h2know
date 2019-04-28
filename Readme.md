@@ -15,3 +15,11 @@ To install, user needs a smart hub and sensors for water exit points. The Smart 
 
 ![logo](https://raw.githubusercontent.com/chriswoodle/h2know/master/screenshot1.png)
 ![logo](https://raw.githubusercontent.com/chriswoodle/h2know/master/screenshot2.png)
+
+# Contributors
+
+Lilit Gevorkyan
+Fabian Kim
+Alissa Ovalle
+Muntaser Syed
+Chris Woodle
