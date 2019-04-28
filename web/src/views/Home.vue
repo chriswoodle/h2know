@@ -1,6 +1,13 @@
 <template>
     <div class="home">
         <div class='row two'>
+            <div class='card'>
+                <h1>Yesterdays Usage</h1>
+                <h3 :class="{[yesterday.Class]: true}">{{yesterday.Class}}</h3>
+                <h3>{{yesterday.Total}} Gallons</h3>
+            </div>
+            </div>
+        <div class='row two'>
             <div class='card device' v-for='device in devices' :key='device.id'>
                 <div v-if='device.record'>
                     <div class='label'>{{device.record.meta.$label || device.record.id}}</div>
@@ -9,6 +16,7 @@
                         <div v-for='(value, member) in prop[0]' :key="member" class='prop'>
                             <div class='field'>{{member}}</div>
                             <div class='value' v-if='key === "FlowSensor" && member === "rate" '>{{Number.parseFloat(100 * ((value) / 255)).toFixed(2)}} %</div>
+                            <div class='value' v-else-if='key === "FlowSensor" && member === "ratio" '>{{value}} G/m</div>
                             <div class='value' v-else>{{value}}</div>
                         </div>
                     </div>
@@ -16,34 +24,35 @@
             </div>
         </div>
         <div class='row two'>
-            <div class='card'>
+            <router-link class='card clickable' tag='div' to="/week">
+
                 <vue-frappe
                     id="test"
                     :labels="[
-                '12am-3am', '3am-6am', '6am-9am', '9am-12pm',
-                '12pm-3pm', '3pm-6pm', '6pm-9pm', '9pm-12am'
+                'Sun', 'Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat'
             ]"
-                    title="My Awesome Chart"
+                    title="Past Daily Usage (Gallons)"
                     type="axis-mixed"
                     :height="300"
                     :colors="['#308BD1', '#ffa3ef', 'light-blue']"
-                    :dataSets="this.data">
+                    :dataSets="this.dailyUsage">
                 </vue-frappe>
-            </div>
-            <div class='card clickable'>
+            </router-link>
+            <router-link class='card' tag='div' to="/week">
+
                 <vue-frappe
                     id="test2"
                     :labels="[
-                '12am-3am', '3am-6am', '6am-9am', '9am-12pm',
-                '12pm-3pm', '3pm-6pm', '6pm-9pm', '9pm-12am'
+                '1', '2', '3', '4',
+                '5', '6', '7', '8'
             ]"
-                    title="My Awesome Chart"
+                    title="Past Weekly Usage (Gallons)"
                     type="axis-mixed"
                     :height="300"
                     :colors="['#4EA4E4', '#ffa3ef', 'light-blue']"
-                    :dataSets="this.data">
+                    :dataSets="this.weeklyUsage">
                 </vue-frappe>
-            </div>
+            </router-link>
         </div>
     </div>
 </template>
@@ -51,6 +60,12 @@
 <script lang="ts">
 import { Component, Vue } from 'vue-property-decorator';
 import HelloWorld from '@/components/HelloWorld.vue'; // @ is an alias to /src
+
+const weeklyUsage = require('../weeklyUsage.json');
+console.log(weeklyUsage);
+
+const dailyUsage = require('../dailyUsage.json');
+console.log(dailyUsage);
 
 import * as ws from '@droplit/websocket-sdk';
 import * as sdk from '@droplit/sdk';
@@ -74,7 +89,7 @@ interface DeviceItem {
 export default class Home extends Vue {
     device: sdk.Device | null = null;
     deviceValue = 0;
-    devices: DeviceItem[] = [DEVICE_ID, devices.shower, devices.kitchenSink, devices.dishwasher, devices.washer, devices.toilet, devices.sprinklers].map<DeviceItem>(id => {
+    devices: DeviceItem[] = [DEVICE_ID, devices.shower, devices.kitchenSink, devices.dishwasher, devices.washer, devices.toilet, devices.toiletLow, devices.sprinklers].map<DeviceItem>(id => {
         return {
             id,
             record: null
@@ -83,6 +98,15 @@ export default class Home extends Vue {
     data = [{
         name: "Some Data", chartType: 'bar',
         values: [25, 40, 30, 35, 8, 52, 17, -4]
+    }]
+    yesterday = dailyUsage[0];
+    weeklyUsage = [{
+        name: "Past Weekly Usage", chartType: 'line',
+        values: [weeklyUsage[0].Total, weeklyUsage[1].Total, weeklyUsage[2].Total, weeklyUsage[3].Total, weeklyUsage[4].Total, weeklyUsage[5].Total, weeklyUsage[6].Total, weeklyUsage[7].Total]
+    }]
+    dailyUsage = [{
+        name: "Past Daily Usage", chartType: 'line',
+        values: [dailyUsage[0].Total, dailyUsage[1].Total, dailyUsage[2].Total, dailyUsage[3].Total, dailyUsage[4].Total, dailyUsage[5].Total, dailyUsage[6].Total]
     }]
     mounted() {
         this.devices.forEach(item => {
@@ -97,7 +121,7 @@ export default class Home extends Vue {
         // })
         api.on('info', (event: ws.ServiceNotification) => {
             const notification = event.items[0];
-            console.log(event.deviceId, notification.service,notification.member, notification.value)
+            console.log(event.deviceId, notification.service, notification.member, notification.value)
             // const devices: DeviceItem[] = Object.assign([], this.devices);
             const found = this.devices.find(item => item.id === event.deviceId);
             if (!found) return;
@@ -115,6 +139,9 @@ export default class Home extends Vue {
             // }
         })
     }
+    destroyed() {
+        api.removeAllListeners();
+    }
 }
 
 function replaceArray<T>(array: T[], newValues: T[]) {
@@ -131,6 +158,7 @@ function replaceArray<T>(array: T[], newValues: T[]) {
     }
     .prop {
         display: inline-block;
+        margin-right: 10px;
         .field {
             font-size: 12px;
         }
@@ -148,5 +176,22 @@ function replaceArray<T>(array: T[], newValues: T[]) {
             color: gray;
         }
     }
+}
+h1 {
+    font-size: 30px;
+}
+h3 {
+    &.Low {
+    font-weight: bold;
+color: $primary-blue;
+    }   
+&.Med {
+    font-weight: bold;
+    color: #E2AC38;
+}
+&.High {
+    font-weight: bold;
+    color: #FFDA82;
+}
 }
 </style>
