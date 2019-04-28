@@ -2,11 +2,18 @@
     <div class="home">
         <div class='row two'>
             <div class='card'>
-                <h1>Yesterdays Usage</h1>
+                <h1>Projected usage tomorrow</h1>
+                <h3 v-if='tomorrow' :class="{[tomorrow]: true}">{{tomorrow}}</h3>
+                <h1>Yesterdays usage</h1>
                 <h3 :class="{[yesterday.Class]: true}">{{yesterday.Class}}</h3>
                 <h3>{{yesterday.Total}} Gallons</h3>
             </div>
+            <div class='card'>
+                <h1>Drought status</h1>
+                <h2>{{drought}}</h2>
+                <h3>(Higher level reflects more drought)</h3>
             </div>
+        </div>
         <div class='row two'>
             <div class='card device' v-for='device in devices' :key='device.id'>
                 <div v-if='device.record'>
@@ -61,6 +68,10 @@
 import { Component, Vue } from 'vue-property-decorator';
 import HelloWorld from '@/components/HelloWorld.vue'; // @ is an alias to /src
 
+import axios from 'axios';
+
+const address = process.env.VUE_APP_ADDRESS || '';
+
 const weeklyUsage = require('../weeklyUsage.json');
 console.log(weeklyUsage);
 
@@ -99,7 +110,9 @@ export default class Home extends Vue {
         name: "Some Data", chartType: 'bar',
         values: [25, 40, 30, 35, 8, 52, 17, -4]
     }]
+    drought: string = '';
     yesterday = dailyUsage[0];
+    tomorrow: string = '';
     weeklyUsage = [{
         name: "Past Weekly Usage", chartType: 'line',
         values: [weeklyUsage[0].Total, weeklyUsage[1].Total, weeklyUsage[2].Total, weeklyUsage[3].Total, weeklyUsage[4].Total, weeklyUsage[5].Total, weeklyUsage[6].Total, weeklyUsage[7].Total]
@@ -109,6 +122,35 @@ export default class Home extends Vue {
         values: [dailyUsage[0].Total, dailyUsage[1].Total, dailyUsage[2].Total, dailyUsage[3].Total, dailyUsage[4].Total, dailyUsage[5].Total, dailyUsage[6].Total]
     }]
     mounted() {
+        axios.post('http://10.61.0.104:8001/daily', {
+            "Inputs": {
+                "input1":
+                    [
+                        dailyUsage[0]
+                    ],
+            },
+            "GlobalParameters": {
+            }
+        })
+            .then((response) => {
+                console.log(response);
+                Vue.set(this, 'tomorrow', response.data);
+            })
+            .catch((error) => {
+                console.log(error);
+            });
+
+        axios.post('http://10.61.0.104:8001/drought', {
+            address
+        })
+            .then((response) => {
+                console.log(response);
+                this.drought = response.data;
+            })
+            .catch((error) => {
+                console.log(error);
+            });
+
         this.devices.forEach(item => {
             api.sdk.devices.info(item.id, { expand: [sdk.DeviceExpandOptions.ServiceProperties] }).then(response => {
                 // Vue.set(item, 'record', (this as any).$deepModel(response.body));
@@ -178,20 +220,27 @@ function replaceArray<T>(array: T[], newValues: T[]) {
     }
 }
 h1 {
-    font-size: 30px;
+    font-size: 24px;
+}
+h2 {
+    margin-top: 20px;
+    margin-top: 20px;
+    font-size: 40px;
+    font-weight: 100;
 }
 h3 {
+    margin-bottom: 10px;
     &.Low {
-    font-weight: bold;
-color: $primary-blue;
-    }   
-&.Med {
-    font-weight: bold;
-    color: #E2AC38;
-}
-&.High {
-    font-weight: bold;
-    color: #FFDA82;
-}
+        font-weight: bold;
+        color: $primary-blue;
+    }
+    &.Med {
+        font-weight: bold;
+        color: #e2ac38;
+    }
+    &.High {
+        font-weight: bold;
+        color: #ffda82;
+    }
 }
 </style>

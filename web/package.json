@@ -10,6 +10,7 @@
     "@droplit/sdk": "^0.3.1",
     "@droplit/websocket-sdk": "^0.1.4",
     "@types/debug": "^4.1.4",
+    "axios": "^0.18.0",
     "debug": "^4.1.1",
     "frappe-charts": "^1.1.0",
     "vue": "^2.6.10",
