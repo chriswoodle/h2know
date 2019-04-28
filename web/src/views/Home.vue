@@ -1,7 +1,7 @@
 <template>
     <div class="home">
         <div class='row'>
-            <HelloWorld msg="Welcome to Your Vue.js + TypeScript App" />
+            <div class='card'>{{deviceValue}}</div>
         </div>
         <div class='row two'>
             <div class='card'>
@@ -40,15 +40,30 @@
 import { Component, Vue } from 'vue-property-decorator';
 import HelloWorld from '@/components/HelloWorld.vue'; // @ is an alias to /src
 
+import * as ws from '@droplit/websocket-sdk';
+
+import { DSocket } from '../websocket';
+
 @Component({
     components: {
         HelloWorld,
     },
 })
 export default class Home extends Vue {
+    deviceValue = 0;
     data = [{
         name: "Some Data", chartType: 'bar',
         values: [25, 40, 30, 35, 8, 52, 17, -4]
     }]
+    mounted() {
+        DSocket.on('main_device', (event: ws.ServiceNotification) => {
+            console.log(event);
+            const notification = event.items[0];
+            if (notification && notification.service === 'FlowSensor' && notification.member === 'rate') {
+                console.log(notification.value);
+                Vue.set(this, 'deviceValue', notification.value);
+            }
+        })
+    }
 }
 </script>
