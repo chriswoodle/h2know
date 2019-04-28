@@ -38,9 +38,7 @@ class API extends EventEmitter {
         });
         this.socket.on('serviceNotification', (serviceNotification) => {
             log(serviceNotification);
-            if (serviceNotification.deviceId === DEVICE_ID) {
-                this.emit('main_device', serviceNotification);
-            }
+            this.emit('info', serviceNotification);
         });
 
         this.socket.on('dataNotification', (dataNotification) => {
